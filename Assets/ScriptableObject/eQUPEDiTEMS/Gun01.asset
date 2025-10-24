@@ -1,0 +1,39 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c6a997e5de71af241b289ab5b22f655c, type: 3}
+  m_Name: Gun01
+  m_EditorClassIdentifier: 
+  DropPrefab: {fileID: 8650884538570227676, guid: 42dcc456509059249be5d04d2cff5e50, type: 3}
+  Icon: {fileID: -5459587067369250946, guid: 7fdeb67c7f57df6428385a315a2edfaa, type: 3}
+  Type: 1
+  Rarity: 0
+  Id: 0001
+  ItemName: Gun
+  Discription: "\u041D\u0443\u0436\u0435\u043D \u0443\u0431\u0438\u0432\u0430\u0442\u044C
+    \u0432\u0440\u0430\u0433\u043E\u0432"
+  canStackable: 0
+  MaxStack: 1
+  Price: 100
+  Weight: 0.5
+  ConsumableEffects: []
+  EquipmentItems:
+  - EquipmentSlot: 5
+    Attack: 10
+    Defense: 10
+    AttackSpeed: 10
+  StatsEffects:
+  - StatsType: 0
+    StatValue: 2
+  - StatsType: 1
+    StatValue: 2
+  CollectibleItems: []
+  ResourceItems: []
