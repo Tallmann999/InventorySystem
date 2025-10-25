@@ -3,15 +3,15 @@ using UnityEngine;
 using UnityEngine.Events;
 using UnityEngine.UI;
 
+[RequireComponent(typeof(EquipmentManager))]
 public class Inventory : MonoBehaviour
 {
     public ItemSlotUi[] uiSlots;
     public ItemSlot[] slots;
 
     [SerializeField] private GameObject _inventoryWindow;
-    [SerializeField] private Transform _dropPosition;// позиция куда упадёт лут это может быть под себя
-                                                     // (Тогда вопрос как брать)
-                                                     // .Или выкинул и уничтожил[]
+    [SerializeField] private Transform _dropPosition;
+    [SerializeField] private EquipmentManager _equipmentManager;
 
     [Header("Выбор предмета")]
     [SerializeField] private TextMeshProUGUI _selectedItemName;
@@ -41,6 +41,7 @@ public class Inventory : MonoBehaviour
     {
         Instanse = this;
         _playerNeeds = GetComponent<PlayerNeeds>();
+        _equipmentManager = GetComponent<EquipmentManager>();
         //_playerController = GetComponent<PlayerController>();
     }
 
@@ -124,8 +125,20 @@ public class Inventory : MonoBehaviour
 
     public void ThrowItem(ItemDataBase item)
     {
-        Instantiate(item.DropPrefab, _dropPosition.position, _dropPosition.rotation);
-        //var tempItem =  Instantiate(item.DropPrefab, _dropPosition.position, _dropPosition.rotation);
+        if (item == null)
+        {
+            Debug.LogError("Попытка выбросить null предмет!");
+            return;
+        }
+
+        if (item.DropPrefab == null)
+        {
+            Debug.LogError($"У предмета {item.ItemName} не назначен DropPrefab!");
+            return;
+        }
+
+        Instantiate(item.DropPrefab, _dropPosition.position, Quaternion.identity);
+        Debug.Log($"Выброшен предмет: {item.ItemName}");
     }
 
     public void UpdateUi()
@@ -170,7 +183,7 @@ public class Inventory : MonoBehaviour
         return null;
     }
 
-    public void SelectItem(int index)
+    public void SelectItem(int index)// тот слот который мы нажимаем в инвентаре
     {
         if (slots[index].item == null)
             return;
@@ -253,8 +266,26 @@ public class Inventory : MonoBehaviour
 
     public void OnUnEquipButton()
     {
+        if (_selectItem == null || _selectItem.item == null || _selectItem.item.Type != ItemType.Equipped)
+            return;
 
+        // Сохраняем информацию о предмете перед снятием
+        string itemName = _selectItem.item.ItemName;
+
+        // Пытаемся снять предмет через EquipmentManager
+        if (_equipmentManager.UnequipItem(_selectItem.item))
+        {
+            // Если успешно сняли, очищаем выделение
+            ClearSelectedItemWindow();
+            UpdateUi(); // Обновляем UI инвентаря, чтобы показать возвращенный предмет
+            Debug.Log($"Предмет {itemName} снят и возвращен в инвентарь");
+        }
+        else
+        {
+            Debug.LogError("Не удалось снять предмет!");
+        }
     }
+
     private void UnEquipItem(int index)
     {
 
@@ -262,32 +293,106 @@ public class Inventory : MonoBehaviour
 
     public void OnEquipButton()
     {
-
-       
+        if (_selectItem.item.Type == ItemType.Equipped)
+        {
+            _equipmentManager.EquipItem(_selectItem);
+        }
     }
 
     public void OnDropButton()
     {
-        ThrowItem(_selectItem.item);
-        RemoveSelectedItem();
+        if (_selectItem == null || _selectItem.item == null)
+        {
+            Debug.LogError("Попытка выбросить пустой слот!");
+            return;
+        }
+
+        try
+        {
+            // Определяем, откуда мы удаляем предмет
+            bool isFromEquipment = _equipmentManager.IsItemEquipped(_selectItem.item);
+
+            if (isFromEquipment)
+            {
+                Debug.Log($"Выбрасываем экипированный предмет: {_selectItem.item.ItemName}");
+                // Создаем копию предмета перед удалением
+                ItemDataBase itemToDrop = _selectItem.item;
+
+                // Удаляем из экипировки
+                if (_equipmentManager.DropEquippedItem(itemToDrop))
+                {
+                    // Выбрасываем предмет в мир
+                    ThrowItem(itemToDrop);
+                    ClearSelectedItemWindow();
+                }
+            }
+            else
+            {
+                Debug.Log($"Выбрасываем предмет из инвентаря: {_selectItem.item.ItemName}");
+                // Создаем копию предмета перед удалением
+                ItemDataBase itemToDrop = _selectItem.item;
+
+                // Удаляем из инвентаря
+                RemoveSelectedItem();
+
+                // Выбрасываем предмет в мир
+                ThrowItem(itemToDrop);
+            }
+        }
+        catch (System.Exception e)
+        {
+            Debug.LogError($"Ошибка при выкидывании предмета: {e.Message}");
+        }
     }
 
     private void RemoveSelectedItem()
     {
+        if (_selectItem == null) return;
+
         _selectItem.Quantity--;
 
-        if (_selectItem.Quantity == 0)
+        if (_selectItem.Quantity <= 0)
         {
-            if (uiSlots[_selectItemIndex]._isEquipped == true)
-                UnEquipItem(_selectItemIndex);
+            // Если предмет был экипирован - снимаем его
+            if (_selectItem.IsEquipped)
+            {
+                _equipmentManager.UnequipItem(_selectItem.item);
+            }
 
             _selectItem.item = null;
+            _selectItem.Quantity = 0;
+            _selectItem.IsEquipped = false;
             ClearSelectedItemWindow();
         }
 
         UpdateUi();
     }
 
+    public void SelectEquipmentItem(ItemSlot equipmentSlot)
+    {
+        if (equipmentSlot == null || equipmentSlot.item == null)
+            return;
+
+        _selectItem = equipmentSlot;
+        _selectedItemName.text = _selectItem.item.ItemName;
+        _selectedItemDiscription.text = _selectItem.item.Discription;
+        _selectedItemStatsName.text = string.Empty;
+        _selectedItemStatsNameValue.text = string.Empty;
+
+        // Показываем статы для экипировки
+        if (_selectItem.item.EquipmentItems != null && _selectItem.item.EquipmentItems.Length > 0)
+        {
+            var equipData = _selectItem.item.EquipmentItems[0];
+            _selectedItemStatsName.text = "Атака\nЗащита\nСкорость Атаки\n";
+            _selectedItemStatsNameValue.text = $"{equipData.Attack}\n{equipData.Defense}\n{equipData.AttackSpeed}\n";
+        }
+
+        // Для экипированных предметов показываем только кнопку "Снять"
+        _useButton.SetActive(false);
+        _equipButton.SetActive(false);
+        _unequipButton.SetActive(true);
+        _dropButton.SetActive(true);
+    }
     public void RemoveItem(ItemDataBase item)
     {
 

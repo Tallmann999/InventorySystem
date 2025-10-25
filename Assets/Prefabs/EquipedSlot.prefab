@@ -11,9 +11,9 @@ GameObject:
   - component: {fileID: 1042953323491122810}
   - component: {fileID: 6236451668625031243}
   - component: {fileID: 6588773261094248645}
+  - component: {fileID: 6653025221387720016}
   - component: {fileID: 8195190081903109201}
   - component: {fileID: 8771337124232249374}
-  - component: {fileID: 9210775532372598028}
   m_Layer: 5
   m_Name: EquipedSlot
   m_TagString: Untagged
@@ -80,6 +80,22 @@ MonoBehaviour:
   m_FillOrigin: 0
   m_UseSpriteMesh: 0
   m_PixelsPerUnitMultiplier: 1
+--- !u!114 &6653025221387720016
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4936447542933077407}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: c483b5371ee8c2c4485dd035022fc6e9, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  _slotType: 0
+  _button: {fileID: 8195190081903109201}
+  _icon: {fileID: 1162556582277963297}
+  _quantityText: {fileID: 6203414888749101000}
 --- !u!114 &8195190081903109201
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -124,9 +140,9 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: ItemSlotUi, Assembly-CSharp
-        m_MethodName: OnClickButton
+      - m_Target: {fileID: 6653025221387720016}
+        m_TargetAssemblyTypeName: EquipmentSlotUi, Assembly-CSharp
+        m_MethodName: OnSlotClick
         m_Mode: 1
         m_Arguments:
           m_ObjectArgument: {fileID: 0}
@@ -151,22 +167,6 @@ MonoBehaviour:
   m_EffectColor: {r: 1, g: 0, b: 0, a: 0.5}
   m_EffectDistance: {x: 1, y: -1}
   m_UseGraphicAlpha: 1
---- !u!114 &9210775532372598028
-MonoBehaviour:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInstance: {fileID: 0}
-  m_PrefabAsset: {fileID: 0}
-  m_GameObject: {fileID: 4936447542933077407}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 331155c91caf97d4d936688651998201, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  slotType: 1
-  icon: {fileID: 1162556582277963297}
-  button: {fileID: 8195190081903109201}
-  slotNameText: {fileID: 6203414888749101000}
 --- !u!1 &5360067760693523216
 GameObject:
   m_ObjectHideFlags: 0
