@@ -26,13 +26,10 @@ MonoBehaviour:
   Weight: 0.002
   ConsumableEffects: []
   EquipmentItems:
-  - EquipmentSlot: 7
+  - EquipmentSlot: 10
     Attack: 10
     Defense: 10
     AttackSpeed: 10
-    Energy: 0
-    Hunger: 5
-    Thirst: 5
-    Sleep: 0
+  StatsEffects: []
   CollectibleItems: []
   ResourceItems: []
